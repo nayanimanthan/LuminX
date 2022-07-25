@@ -8,16 +8,24 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,8 +34,11 @@ import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -35,6 +46,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.luminx.GPSTracker;
 import com.example.luminx.R;
 import com.example.luminx.ui.ColorPickView;
 import com.google.android.gms.common.ConnectionResult;
@@ -45,6 +57,10 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class NewReportActivity extends AppCompatActivity {
 
@@ -82,6 +98,10 @@ public class NewReportActivity extends AppCompatActivity {
     EditText et_name;
     EditText et_email;
     EditText et_location;
+
+    public double latitude = 0.0d;
+    public double longitude = 0.0d;
+    private ProgressDialog progressDialog;
 
     protected LocationManager locationManager;
 
@@ -217,25 +237,29 @@ public class NewReportActivity extends AppCompatActivity {
                 fl_pin.setBackgroundResource(R.drawable.selector_op_button_unselected);
                 fl_street.setBackgroundResource(R.drawable.selector_op_button_unselected);
 
-                showCurrentLocation();
+                //           showCurrentLocation();
+
+                //get current location
+                if (CheckNet(getApplication())) {
+                    if (GpsService_EnableorNot()) {
+                        GetCurrentLiveLat_Lng();
+                    }
+                } else {
+                    Toast.makeText(NewReportActivity.this, "No Internet Connection!", Toast.LENGTH_SHORT).show();
+
+                }
             }
         });
 
 
         this.fl_indoor = findViewById(R.id.fl_indoor);
         this.fl_outdoor = findViewById(R.id.fl_outdoor);
-        this.fl_n_shield = findViewById(R.id.fl_n_shield);
-        this.fl_p_shield = findViewById(R.id.fl_p_shield);
-        this.fl_f_shield = findViewById(R.id.fl_f_shield);
 
         fl_indoor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 fl_indoor.setBackgroundResource(R.drawable.selector_op_button_selected);
                 fl_outdoor.setBackgroundResource(R.drawable.selector_op_button_unselected);
-                fl_n_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
-                fl_p_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
-                fl_f_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
 
                 b_door = true;
             }
@@ -247,20 +271,19 @@ public class NewReportActivity extends AppCompatActivity {
             public void onClick(View view) {
                 fl_outdoor.setBackgroundResource(R.drawable.selector_op_button_selected);
                 fl_indoor.setBackgroundResource(R.drawable.selector_op_button_unselected);
-                fl_n_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
-                fl_p_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
-                fl_f_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
 
                 b_door = true;
             }
         });
 
+        this.fl_n_shield = findViewById(R.id.fl_n_shield);
+        this.fl_p_shield = findViewById(R.id.fl_p_shield);
+        this.fl_f_shield = findViewById(R.id.fl_f_shield);
+
         fl_n_shield.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 fl_n_shield.setBackgroundResource(R.drawable.selector_op_button_selected);
-                fl_indoor.setBackgroundResource(R.drawable.selector_op_button_unselected);
-                fl_outdoor.setBackgroundResource(R.drawable.selector_op_button_unselected);
                 fl_p_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
                 fl_f_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
 
@@ -272,8 +295,6 @@ public class NewReportActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 fl_p_shield.setBackgroundResource(R.drawable.selector_op_button_selected);
-                fl_indoor.setBackgroundResource(R.drawable.selector_op_button_unselected);
-                fl_outdoor.setBackgroundResource(R.drawable.selector_op_button_unselected);
                 fl_n_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
                 fl_f_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
 
@@ -285,8 +306,6 @@ public class NewReportActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 fl_f_shield.setBackgroundResource(R.drawable.selector_op_button_selected);
-                fl_indoor.setBackgroundResource(R.drawable.selector_op_button_unselected);
-                fl_outdoor.setBackgroundResource(R.drawable.selector_op_button_unselected);
                 fl_n_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
                 fl_p_shield.setBackgroundResource(R.drawable.selector_op_button_unselected);
 
@@ -295,6 +314,9 @@ public class NewReportActivity extends AppCompatActivity {
         });
 
         this.fl_dim = findViewById(R.id.fl_dim);
+        this.fl_normal = findViewById(R.id.fl_normal);
+        this.fl_bright = findViewById(R.id.fl_bright);
+
         fl_dim.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -306,7 +328,7 @@ public class NewReportActivity extends AppCompatActivity {
             }
         });
 
-        this.fl_normal = findViewById(R.id.fl_normal);
+
         fl_normal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -318,7 +340,7 @@ public class NewReportActivity extends AppCompatActivity {
             }
         });
 
-        this.fl_bright = findViewById(R.id.fl_bright);
+
         fl_bright.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -349,24 +371,6 @@ public class NewReportActivity extends AppCompatActivity {
                     Toast.makeText(NewReportActivity.this, "New Report submitted", Toast.LENGTH_SHORT).show();
 
                     finish();
-/*
-                    AndroidNetworking.post("https://fierce-cove-29863.herokuapp.com/createAnUser")
-                            .addBodyParameter("firstname", "Amit")
-                            .addBodyParameter("lastname", "Shekhar")
-                            .setTag("test")
-                            .setPriority(Priority.MEDIUM)
-                            .build()
-                            .getAsJSONObject(new JSONObjectRequestListener() {
-                                @Override
-                                public void onResponse(JSONObject response) {
-                                    // do anything with response
-                                }
-                                @Override
-                                public void onError(ANError error) {
-                                    // handle error
-                                }
-                            });
-*/
 
                 }
             }
@@ -392,6 +396,174 @@ public class NewReportActivity extends AppCompatActivity {
         });
     }
 
+    public static Boolean CheckNet(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public boolean GpsService_EnableorNot() {
+        boolean isProviderEnabled;
+        @SuppressLint("WrongConstant") LocationManager locationManager = (LocationManager) getSystemService("location");
+        try {
+            isProviderEnabled = locationManager.isProviderEnabled("gps");
+        } catch (Exception unused) {
+            isProviderEnabled = false;
+        }
+        boolean isProviderEnabled2;
+        try {
+            isProviderEnabled2 = locationManager.isProviderEnabled("network");
+        } catch (Exception unused2) {
+            isProviderEnabled2 = false;
+        }
+        if (!isProviderEnabled && !isProviderEnabled2) {
+            showPermissionDialog();
+            return false;
+        } else if (isProviderEnabled && isProviderEnabled2) {
+            return isProviderEnabled;
+        } else {
+            showPermissionDialog();
+            return false;
+        }
+    }
+
+    private void showPermissionDialog() {
+        final Dialog dialog = new Dialog(this, R.style.FullWidth_Dialog);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            dialog.getWindow().setLayout((getDeviceHeight(this) / 100) * 70, WindowManager.LayoutParams.WRAP_CONTENT);
+        } else {
+            dialog.getWindow().setLayout((getDeviceWidth(this) / 100) * 90, WindowManager.LayoutParams.WRAP_CONTENT);
+        }
+        dialog.setContentView(R.layout.dialog_permission);
+
+        TextView iv_dialog_cancel = (TextView) dialog.findViewById(R.id.iv_dialog_cancel);
+        TextView iv_dialog_call = (TextView) dialog.findViewById(R.id.iv_dialog_call);
+
+
+        iv_dialog_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        iv_dialog_call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                startActivity(new Intent("android.settings.LOCATION_SOURCE_SETTINGS"));
+            }
+        });
+
+        dialog.show();
+    }
+
+    public static int getDeviceWidth(Context context2) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((WindowManager) context2.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(displayMetrics);
+        return displayMetrics.widthPixels;
+    }
+
+    public static int getDeviceHeight(Context context2) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((WindowManager) context2.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(displayMetrics);
+        return displayMetrics.widthPixels;
+    }
+
+    public void GetCurrentLiveLat_Lng() {
+        if (progressDialog==null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Finding...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                GPSTracker gPSTrackerI = new GPSTracker(NewReportActivity.this);
+                if (gPSTrackerI.isgpsenabled() && gPSTrackerI.canGetLocation()) {
+                    latitude = gPSTrackerI.getLatitude();
+                    longitude = gPSTrackerI.getLongitude();
+                    if (latitude == 0.0d) {
+                        new Handler().postDelayed(new Runnable() {
+                            public void run() {
+
+                                GetCurrentLiveLat_Lng();
+                            }
+                        }, 700);
+                    } else {
+                        String address=GetCurrentLiveAddress();
+                    }
+                }
+            }
+        }, 500);
+    }
+
+    private String GetCurrentLiveAddress() {
+        String str = "";
+        String textLatitude = "";
+        String textLongitude = "";
+        String textAddress = "";
+        String textCity = "";
+        String textState = "";
+        String txtCountry = "";
+        try {
+            List fromLocation = new Geocoder(this, Locale.getDefault()).getFromLocation(this.latitude, this.longitude, 1);
+            if (fromLocation != null && fromLocation.size() > 0 && ((Address) fromLocation.get(0)).getAddressLine(0) != null && ((Address) fromLocation.get(0)).getAddressLine(0).length() > 0) {
+                StringBuilder stringBuilder;
+                String addressLine = ((Address) fromLocation.get(0)).getAddressLine(0);
+                String locality = ((Address) fromLocation.get(0)).getLocality();
+                ((Address) fromLocation.get(0)).getPostalCode();
+                String adminArea = ((Address) fromLocation.get(0)).getAdminArea();
+                ((Address) fromLocation.get(0)).getFeatureName();
+                String countryName = ((Address) fromLocation.get(0)).getCountryName();
+                StringBuilder stringBuilder2 = new StringBuilder();
+                stringBuilder2.append(this.latitude);
+                stringBuilder2.append(str);
+                textLatitude=stringBuilder2.toString();
+
+                stringBuilder2 = new StringBuilder();
+                stringBuilder2.append(this.longitude);
+                stringBuilder2.append(str);
+                textLongitude=stringBuilder2.toString();
+                if (addressLine != null) {
+                    stringBuilder2 = new StringBuilder();
+                    stringBuilder2.append(addressLine);
+                    stringBuilder2.append(str);
+                    textAddress=stringBuilder2.toString();
+                    Toast.makeText(this, "Address is " + textAddress, Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                }
+                if (locality != null) {
+                    stringBuilder = new StringBuilder();
+                    stringBuilder.append(locality);
+                    stringBuilder.append(str);
+                    textCity=stringBuilder.toString();
+                }
+                if (adminArea != null) {
+                    stringBuilder = new StringBuilder();
+                    stringBuilder.append(adminArea);
+                    stringBuilder.append(str);
+                    textState=stringBuilder.toString();
+                }
+                if (adminArea != null) {
+                    stringBuilder = new StringBuilder();
+                    stringBuilder.append(countryName);
+                    stringBuilder.append(str);
+                    txtCountry=stringBuilder.toString();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+        return textAddress;
+    }
+
+
+    //old
     protected void showCurrentLocation() {
 
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -426,19 +598,6 @@ public class NewReportActivity extends AppCompatActivity {
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
             }
         }
-
-
-        // Location
-        /*if (requestCode == REQUEST_CODE_ASK_PERMISSIONS) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission given write code here
-            } else {
-                // Permission Denied
-                Toast.makeText(this, "Please provide Location Permission ", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }*/
     }
 
     @Override
@@ -470,19 +629,19 @@ class MyLocationListener implements LocationListener {
                 "New Location \n Longitude: %1$s \n Latitude: %2$s",
                 location.getLongitude(), location.getLatitude()
         );
-     //   Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        //   Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     public void onStatusChanged(String s, int i, Bundle b) {
-   //     Toast.makeText(LbsGeocodingActivity.this, "Provider status changed",Toast.LENGTH_LONG).show();
+        //     Toast.makeText(LbsGeocodingActivity.this, "Provider status changed",Toast.LENGTH_LONG).show();
     }
 
     public void onProviderDisabled(String s) {
-     //   Toast.makeText(LbsGeocodingActivity.this,"Provider disabled by the user. GPS turned off", Toast.LENGTH_LONG).show();
+        //   Toast.makeText(LbsGeocodingActivity.this,"Provider disabled by the user. GPS turned off", Toast.LENGTH_LONG).show();
     }
 
     public void onProviderEnabled(String s) {
-     //   Toast.makeText(LbsGeocodingActivity.this, "Provider enabled by the user. GPS turned on", Toast.LENGTH_LONG).show();
+        //   Toast.makeText(LbsGeocodingActivity.this, "Provider enabled by the user. GPS turned on", Toast.LENGTH_LONG).show();
     }
 
 }

@@ -4,46 +4,76 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/theme_black_main"
     tools:context=".ui.report.ReportFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_centerInParent="true"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/btn_new_report"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:background="@drawable/selector_button"
-            android:text="New Report"/>
-
-        <Button
-            android:id="@+id/btn_report_list"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/selector_button"
-            android:text="Report List"/>
-
-    </LinearLayout>
+    <ImageView
+        android:id="@+id/btn_new_report"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/plus"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="80dp"
+        android:layout_marginRight="30dp"
+        android:padding="10dp"
+        android:background="@drawable/bg_theme_green_circle"/>
 
     <TextView
-        android:id="@+id/text_dashboard"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:textColor="@color/purple_200"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="No report found"
+        android:textColor="@color/gray"
+        android:textSize="18sp"
+        android:layout_centerInParent="true"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_reportlist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <!--    <LinearLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:gravity="center"-->
+    <!--        android:layout_centerInParent="true"-->
+    <!--        android:orientation="vertical">-->
+
+    <!--        <Button-->
+    <!--            android:id="@+id/btn_new_report"-->
+    <!--            android:layout_width="200dp"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:textColor="@color/white"-->
+    <!--            android:background="@drawable/bg_theme_green_curved"-->
+    <!--            android:text="New Report"/>-->
+
+    <!--        <Button-->
+    <!--            android:id="@+id/btn_report_list"-->
+    <!--            android:layout_width="200dp"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:textColor="@color/white"-->
+    <!--            android:layout_marginTop="20dp"-->
+    <!--            android:layout_marginBottom="10dp"-->
+    <!--            android:background="@drawable/bg_theme_green_curved"-->
+    <!--            android:text="Report List"/>-->
+
+    <!--    </LinearLayout>-->
+
+    <!--
+        <TextView
+            android:id="@+id/text_dashboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:textColor="@color/purple_200"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    -->
 </RelativeLayout>

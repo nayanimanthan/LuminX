@@ -11,6 +11,9 @@
         <entry key="..\:/Android Project/LuminX/app/src/main/res/drawable-v24/selector_button_unselected.xml" value="0.1455" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/drawable/bg_edit_text.xml" value="0.1455" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/drawable/bg_green_button.xml" value="0.1455" />
+        <entry key="..\:/Android Project/LuminX/app/src/main/res/drawable/bg_light_grey_curved.xml" value="0.106" />
+        <entry key="..\:/Android Project/LuminX/app/src/main/res/drawable/bg_search_curved.xml" value="0.135" />
+        <entry key="..\:/Android Project/LuminX/app/src/main/res/drawable/bg_theme_green_circle.xml" value="0.132" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/drawable/ic_dashboard_black_24dp.xml" value="0.125" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/drawable/ic_home_black_24dp.xml" value="0.125" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/drawable/ic_notifications_black_24dp.xml" value="0.1075" />
@@ -20,6 +23,7 @@
         <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/activity_main.xml" value="0.17" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/activity_new_report.xml" value="0.16" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/activity_report_list.xml" value="0.1" />
+        <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/dialog_permission.xml" value="0.1" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/fragment_dashboard.xml" value="0.20416666666666666" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/fragment_home.xml" value="0.20416666666666666" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/fragment_learn.xml" value="0.11979166666666667" />
@@ -27,6 +31,7 @@
         <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/fragment_notifications.xml" value="0.20416666666666666" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/fragment_report.xml" value="0.1" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/fragment_suggestions.xml" value="0.1" />
+        <entry key="..\:/Android Project/LuminX/app/src/main/res/layout/item_report_list.xml" value="0.1" />
         <entry key="..\:/Android Project/LuminX/app/src/main/res/menu/bottom_nav_menu.xml" value="0.20416666666666666" />
       </map>
     </option>
