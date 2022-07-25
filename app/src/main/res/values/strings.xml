@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">LuminX</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_map">Map</string>
+    <string name="title_report">Report</string>
+    <string name="title_suggestion">Suggestions</string>
+    <string name="title_learn">Learn</string>
 </resources>

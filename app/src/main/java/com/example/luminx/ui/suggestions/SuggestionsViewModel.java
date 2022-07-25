@@ -1,16 +1,16 @@
-package com.example.luminx.ui.home;
+package com.example.luminx.ui.suggestions;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class HomeViewModel extends ViewModel {
+public class SuggestionsViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public HomeViewModel() {
+    public SuggestionsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
+        mText.setValue("This is suggestions fragment");
     }
 
     public LiveData<String> getText() {
