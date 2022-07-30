@@ -8,7 +8,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-public interface Api {
+public interface    Api {
 
     String BASE_URL = "http://192.168.0.217:9095/";
 

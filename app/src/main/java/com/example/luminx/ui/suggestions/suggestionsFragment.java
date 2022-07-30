@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -45,16 +48,19 @@ import retrofit2.Response;
 public class suggestionsFragment extends Fragment {
 
     private FragmentSuggestionsBinding binding;
+    LinearLayout ll_bottom;
+    private SuggestionListAdapter adapter;
+    private RecyclerView rv_suggesrionlist;
+    public ArrayList<RecomendedPlacesList> recommendedList;
 
     AutoCompleteTextView et_location;
     MapView mMapView;
     private GoogleMap googleMap;
-    //    Spinner spin;
     String[] items = new String[]{
             "Nunavut",
-            "Québec",
+            //     "Québec",
             "Northwest Territories",
-            "British Columbia",
+            //     "British Columbia",
             "Ontario",
             "Alberta",
             "Saskatchewan",
@@ -63,7 +69,7 @@ public class suggestionsFragment extends Fragment {
             "Newfoundland and Labrador",
             "New Brunswick",
             "Nova Scotia",
-            "Prince Edward Island",
+            //     "Prince Edward Island",
     };
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -73,9 +79,13 @@ public class suggestionsFragment extends Fragment {
 
         binding = FragmentSuggestionsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-//        spin = (Spinner) binding.spinner1;
         et_location = (AutoCompleteTextView) binding.etLocation;
+
+        ll_bottom = binding.llBottom;
+
+        rv_suggesrionlist = binding.rvSuggestionlist;
+        rv_suggesrionlist.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
+
 
         ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, items);
         et_location.setAdapter(arrayAdapter);
@@ -88,7 +98,53 @@ public class suggestionsFragment extends Fragment {
                 Log.v("item", (String) parent.getItemAtPosition(pos));
                 Toast.makeText(getActivity(), "province selected", Toast.LENGTH_LONG).show();
                 getRecommendationsbasedonprovince((String) parent.getItemAtPosition(pos));
-                Toast.makeText(getContext(), " get place", Toast.LENGTH_SHORT).show();
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                    return;
+                }
+                // ontario latitude:50.000000 , lontitude:-85.000000
+                // alberta latitude:55.000000 , lontitude:-115.000000
+                // saskatchewan  latitude:55.000000 , lontitude:-106.000000
+                // New Brunswick latitude:46.498390 , lontitude:-66.159668
+                // nova scotia latitude:45.000000 , lontitude:-63.000000
+                // Newfoundland and Labrador latitude:53.135509 , lontitude:-57.660435
+                // Yukon  latitude:64.000000 , lontitude:-135.000000
+                // Northwest territories  latitude: 64.8255 , lontitude:-124.8457
+                // manitoba  latitude:49.895077 , lontitude:-97.138451
+                // nunavut  latitude:63.748611 , lontitude:-68.519722
+                googleMap.clear();
+                googleMap.setMyLocationEnabled(true);
+
+                LatLng latLng;
+                if (pos == 0) {
+                    latLng = new LatLng(63.748611, -68.519722);
+                } else if (pos == 1) {
+                    latLng = new LatLng(64.8255, -124.8457);
+                } else if (pos == 2) {
+                    latLng = new LatLng(50.000000, -85.000000);
+                } else if (pos == 3) {
+                    latLng = new LatLng(55.000000, -115.000000);
+                } else if (pos == 4) {
+                    latLng = new LatLng(55.000000, -106.000000);
+                } else if (pos == 5) {
+                    latLng = new LatLng(49.895077, -97.138451);
+                } else if (pos == 6) {
+                    latLng = new LatLng(64.000000, -135.000000);
+                } else if (pos == 7) {
+                    latLng = new LatLng(53.135509, -57.660435);
+                } else if (pos == 8) {
+                    latLng = new LatLng(46.498390, -66.159668);
+                } else if (pos == 9) {
+                    latLng = new LatLng(45.000000, -63.000000);
+                } else {
+                    latLng = new LatLng(0, 0);
+                }
+
+                MarkerOptions markerOptions = new MarkerOptions().position(latLng)
+                        .title("Here I am!");
+                googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
+                googleMap.addMarker(markerOptions);
             }
         });
 
@@ -98,7 +154,6 @@ public class suggestionsFragment extends Fragment {
                 et_location.showDropDown();
             }
         });
-//        initspinnerfooter();
 
         final TextView textView = binding.textNotifications;
         suggestionsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
@@ -120,6 +175,10 @@ public class suggestionsFragment extends Fragment {
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
 
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                    return;
+                }
                 googleMap.setMyLocationEnabled(true);
 
                 LatLng latLng = new LatLng(56.13,106.34);
@@ -132,37 +191,21 @@ public class suggestionsFragment extends Fragment {
         });
     }
 
-//    private void initspinnerfooter() {
-//
-//
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.item_spinner, items);
-//        spin.setAdapter(adapter);
-//        spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                Log.v("item", (String) parent.getItemAtPosition(position));
-////                ((TextView) parent.getChildAt(0)).setTextColor(Color.WHITE);
-//
-//                Toast.makeText(getActivity(), "province selected", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//                // TODO Auto-generated method stub
-//            }
-//        });
-//    }
-
     private void getRecommendationsbasedonprovince(String province) {
         Call<Root3> call = RetrofitClient.getInstance().getMyApi().getRecommendationsbasedonprovince(province);
         call.enqueue(new Callback<Root3>() {
             @Override
             public void onResponse(Call<Root3> call, Response<Root3> response) {
-                Root3 root = response.body();
-                String message = root.getMessage();
-                ArrayList<RecomendedPlacesList> recomendedPlacesList=root.getRecomendedPlacesList();
+                Root3 suggestionlist = response.body();
+                String message = suggestionlist.getMessage();
+                recommendedList = suggestionlist.getRecomendedPlacesList();
 
-                Toast.makeText(getContext(), " api called ", Toast.LENGTH_SHORT).show();
+                adapter = new SuggestionListAdapter(getContext(), recommendedList);
+                rv_suggesrionlist.setAdapter(adapter);
+
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+
+                ll_bottom.setVisibility(View.VISIBLE);
             }
 
             @Override

@@ -45,6 +45,39 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/ll_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:weightSum="2">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_light_blue_top_curved">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_suggestionlist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="40dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"/>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
 
     <TextView
         android:id="@+id/text_notifications"
